@@ -47,7 +47,7 @@ public class MySQLite extends SQLiteOpenHelper {
                 + PHONE_NUMBER + " TEXT,"
                 + ADDRESS + " TEXT,"
                 + WEBSITE + " TEXT,"
-                + RATING + " TEXT"
+                + RATING + " INTEGER"
                 + ")";
         db.execSQL(CREATE_CONTACTS_TABLE);
         System.out.println(CREATE_CONTACTS_TABLE);
@@ -116,8 +116,9 @@ public class MySQLite extends SQLiteOpenHelper {
 
         String selectQuery = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + NAME; // Переменная для SQL-запроса
         long s = spinner.getSelectedItemId();
-
-        if (s == 0) {
+        if (filter.contains("'")) {
+            selectQuery = "SELECT * FROM " + TABLE_NAME + " LIMIT 0" ;
+        } else if (s == 0) {
             selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + NAME_LC + " LIKE '%" +
                     filter.toLowerCase() + "%'"
                     + " OR " + PHONE_NUMBER + " LIKE '%" + filter + "%'"
@@ -137,8 +138,11 @@ public class MySQLite extends SQLiteOpenHelper {
             selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + WEBSITE + " LIKE '%" +
                     filter.toLowerCase() + "%'" + ")";
         } else if (s == 5){
-            selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + RATING + " LIKE '%" +
-                    filter.toLowerCase() + "%'" + ")";
+            if (filter.isEmpty() | !filter.matches("[-+]?\\d")) {
+                selectQuery = "SELECT * FROM " + TABLE_NAME + " LIMIT 0" ;
+            } else {
+                selectQuery = "SELECT * FROM " + TABLE_NAME + " WHERE " + RATING + " >= " + Integer.parseInt(filter) + " ORDER BY " + RATING;
+            }
         }
         SQLiteDatabase db = this.getReadableDatabase(); // Доступ к БД
         Cursor cursor = db.rawQuery(selectQuery, null); // Выполнение SQL-запроса
