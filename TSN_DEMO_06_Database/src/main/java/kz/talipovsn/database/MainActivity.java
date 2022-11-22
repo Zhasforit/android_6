@@ -8,7 +8,10 @@ import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -24,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText editText; // Компонент для задания строки поиска
     TextView textView; // Компонент для вывода ответа
+    Spinner spinner;
 
     static final String FILTER = "FILTER"; // Имя параметра для сохранения при переворачивании экрана
     String filter = ""; // Фильтр поиска
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         // Доступ к компонентам
         editText = findViewById(R.id.editText);
         textView = findViewById(R.id.textView);
+        spinner = findViewById(R.id.spinner2);
 
         textView.setKeyListener(null); // Запрет на изменение данных с клавиатуры
 
@@ -68,6 +73,28 @@ public class MainActivity extends AppCompatActivity {
         }
 
         textView.setText(R.string.Загрузка_данных);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                new Thread(new Runnable() {
+                    public void run() {
+                        filter = editText.getText().toString().trim();
+                        final String data = db.getData(filter, spinner);
+
+                        textView.post(new Runnable() {
+                            public void run() {
+                                textView.setText(data);
+                            }
+                        });
+                    }
+                }).start();
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         // Обработчик изменения текста в компоненте "editText"
         editText.addTextChangedListener(new TextWatcher() {
@@ -86,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     public void run() {
                         filter = editText.getText().toString().trim();
-                        final String data = db.getData(filter);
+                        final String data = db.getData(filter, spinner);
                         // Сделаем вывод результата синхронно с основным потоком
                         textView.post(new Runnable() {
                             public void run() {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Spinner;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -111,19 +112,33 @@ public class MySQLite extends SQLiteOpenHelper {
     }
 
     // Получение значений данных из БД в виде строки с фильтром
-    public String getData(String filter) {
+    public String getData(String filter, Spinner spinner) {
 
-        String selectQuery; // Переменная для SQL-запроса
+        String selectQuery = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + NAME; // Переменная для SQL-запроса
+        long s = spinner.getSelectedItemId();
 
-        if (filter.equals("")) {
-            selectQuery = "SELECT  * FROM " + TABLE_NAME;
-        } else {
+        if (s == 0) {
             selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + NAME_LC + " LIKE '%" +
                     filter.toLowerCase() + "%'"
                     + " OR " + PHONE_NUMBER + " LIKE '%" + filter + "%'"
                     + " OR " + ADDRESS + " LIKE '%" + filter + "%'"
                     + " OR " + WEBSITE + " LIKE '%" + filter + "%'"
                     + " OR " + RATING + " LIKE '%" + filter + "%'" + ")";
+        } else if(s == 1){
+            selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + NAME_LC + " LIKE '%" +
+                    filter.toLowerCase() + "%'" + ")";
+        } else if (s == 2){
+            selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + PHONE_NUMBER + " LIKE '%" +
+                    filter.toLowerCase() + "%'" + ")";
+        } else if (s == 3){
+            selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + ADDRESS + " LIKE '%" +
+                    filter.toLowerCase() + "%'" + ")";
+        } else if (s == 4){
+            selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + WEBSITE + " LIKE '%" +
+                    filter.toLowerCase() + "%'" + ")";
+        } else if (s == 5){
+            selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE (" + RATING + " LIKE '%" +
+                    filter.toLowerCase() + "%'" + ")";
         }
         SQLiteDatabase db = this.getReadableDatabase(); // Доступ к БД
         Cursor cursor = db.rawQuery(selectQuery, null); // Выполнение SQL-запроса
